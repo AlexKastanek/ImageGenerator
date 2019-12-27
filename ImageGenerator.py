@@ -67,6 +67,10 @@ def plotColor(expression, pixelsPerUnit):
 
             # scale [-1,1] result to [0,255].
             intensity = int(z * 127.5 + 127.5)
+            if (intensity < 0):
+                intensity = 0
+            elif (intensity > 255):
+                intensity = 255
             canvas.putpixel((it2,it1), intensity)   
     
     return canvas
