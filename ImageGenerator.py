@@ -57,7 +57,7 @@ def plotColor(expression, pixelsPerUnit):
             x = float(it2 - pixelsPerUnit) / pixelsPerUnit
             y = -float(it1 - pixelsPerUnit) / pixelsPerUnit
             # print("From plotColor(): ("+str(x)+","+str(y)+")")
-            z = evaluateExpression(expression,[x,y])
+            z = evaluateExpression(expression,(x,y))
 
             # scale [-1,1] result to [0,255].
             intensity = int(z * 127.5 + 127.5)
