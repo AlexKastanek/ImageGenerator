@@ -26,6 +26,12 @@ def cosPiX(x):
 def cosPiXY(x, y):
     return math.cos(math.pi * x * y)
 
+def tanPiX(x):
+    return math.tan(math.pi * x)
+
+def tanPiXY(x, y):
+    return math.tan(math.pi * x * y)
+
 def plotImage(redExpression, greenExpression, blueExpression, pixelsPerUnit = 150):
     # create a canvas for each color
     redCanvas = plotColor(redExpression, pixelsPerUnit)
@@ -72,7 +78,19 @@ def buildExpression(prob = 0.9):
         return random.choice([
             "s(" + buildExpression(prob*prob) + ")",
             "c(" + buildExpression(prob*prob) + ")",
-            "s(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])
+            "t(" + buildExpression(prob*prob) + ")",
+            random.choice(["s(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")",
+            "s(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
+            random.choice(["c(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+            "c(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
+            random.choice(["t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")"
+            "t(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])])
+            # "s(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")",
+            # "s(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")",
+            # "c(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+            # "c(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")",
+            # "t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+            # "t(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])
     else:
         return random.choice(["x","y"])
 
@@ -102,6 +120,8 @@ def evaluateExpression(parentExpression, params):
             values.append(sinPiX(evaluateExpression(nestedExpression, params)))
         elif (expression[0] == 'c'):
             values.append(cosPiX(evaluateExpression(nestedExpression, params)))
+        elif (expression[0] == 't'):
+            values.append(tanPiX(evaluateExpression(nestedExpression, params)))
     
     # apply the set of operators to the values
     #TODO: make below functionality actually apply order of operations
@@ -159,7 +179,7 @@ def determineNestedExpression(expression):
 
 def main():
     random.seed()
-    for it in range (0, 2):
+    for it in range (0, 1):
         redExpression = buildExpression()
         greenExpression = buildExpression()
         blueExpression = buildExpression()
