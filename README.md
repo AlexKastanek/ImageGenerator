@@ -4,5 +4,5 @@ Generates an image by constructing a list of 3 functions for the R, G, and B cha
 
 # Reference
 
-This script is highly based on the algorithm seen in a tutorial, which can be accessed using the link below.
+This script is highly based on the algorithm seen in a tutorial by Jeremy Kun, which can be accessed using the link below.
 https://jeremykun.com/2012/01/01/random-psychedelic-art/
