@@ -87,7 +87,7 @@ def buildExpression(prob = 0.9):
             "s(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
             random.choice(["c(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
             "c(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
-            random.choice(["t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")"
+            random.choice(["t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
             "t(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])])
     else:
         return random.choice(["x","y"])
