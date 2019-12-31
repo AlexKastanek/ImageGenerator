@@ -32,6 +32,8 @@ def tanPiX(x):
 def tanPiXY(x, y):
     return math.tan(math.pi * x * y)
 
+functionCalls = []
+
 def plotImage(redExpression, greenExpression, blueExpression, pixelsPerUnit = 150):
     # create a canvas for each color
     redCanvas = plotColor(redExpression, pixelsPerUnit)
@@ -42,6 +44,8 @@ def plotImage(redExpression, greenExpression, blueExpression, pixelsPerUnit = 15
     return Image.merge("RGB", (redCanvas, greenCanvas, blueCanvas))
 
 def plotColor(expression, pixelsPerUnit):
+    global functionCalls
+
     # initialize blank canvas
     canvasWidth = 2 * pixelsPerUnit + 1
     print("canvasWidth = " + str(canvasWidth))
@@ -63,7 +67,12 @@ def plotColor(expression, pixelsPerUnit):
             x = float(it2 - pixelsPerUnit) / pixelsPerUnit
             y = -float(it1 - pixelsPerUnit) / pixelsPerUnit
             # print("From plotColor(): ("+str(x)+","+str(y)+")")
+            functionCalls = []
             z = evaluateExpression(expression,(x,y))
+
+            if (it1 == 0 and it2 == 0):
+                print(str(functionCalls))
+                functionCalls = []
 
             # scale [-1,1] result to [0,255].
             intensity = int(z * 127.5 + 127.5)
@@ -93,6 +102,8 @@ def buildExpression(prob = 0.9):
         return random.choice(["x","y"])
 
 def evaluateExpression(parentExpression, params):
+    global functionCalls
+
     # get list of expressions and operators
     expressionsAndOperators = tokenizeExpression(parentExpression)
     expressions = expressionsAndOperators[0]
@@ -115,11 +126,17 @@ def evaluateExpression(parentExpression, params):
         nestedExpression = determineNestedExpression(expression)
         # print("Nested Expression: " + str(nestedExpression))
         if (expression[0] == 's'):
+            functionCalls.append("s(")
             values.append(sinPiX(evaluateExpression(nestedExpression, params)))
+            functionCalls.append(")")
         elif (expression[0] == 'c'):
+            functionCalls.append("c(")
             values.append(cosPiX(evaluateExpression(nestedExpression, params)))
+            functionCalls.append(")")
         elif (expression[0] == 't'):
+            functionCalls.append("t(")
             values.append(tanPiX(evaluateExpression(nestedExpression, params)))
+            functionCalls.append(")")
     
     # apply the set of operators to the values
     #TODO: make below functionality actually apply order of operations
@@ -129,6 +146,7 @@ def evaluateExpression(parentExpression, params):
     if (len(values) > 1):
         for value in values[1:]:
             finalValue *= value
+            functionCalls.append("*")
 
     # print("Final Value: " + str(finalValue))
     return finalValue
