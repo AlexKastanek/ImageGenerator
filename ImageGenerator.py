@@ -37,18 +37,16 @@ def tanPiX(x):
 def tanPiXY(x, y):
     return math.tan(math.pi * x * y)
 
-def plotImage(redExpression, greenExpression, blueExpression, pixelsPerUnit = 150):
+def plotImage(redFunctionCalls, greenFunctionCalls, blueFunctionCalls, pixelsPerUnit = 150):
     # create a canvas for each color
-    redCanvas = plotColor(redExpression, pixelsPerUnit)
-    greenCanvas = plotColor(greenExpression, pixelsPerUnit)
-    blueCanvas = plotColor(blueExpression, pixelsPerUnit)
+    redCanvas = plotColor(redFunctionCalls, pixelsPerUnit)
+    greenCanvas = plotColor(greenFunctionCalls, pixelsPerUnit)
+    blueCanvas = plotColor(blueFunctionCalls, pixelsPerUnit)
 
     # merge the colors together
     return Image.merge("RGB", (redCanvas, greenCanvas, blueCanvas))
 
-def plotColor(expression, pixelsPerUnit):
-    global currentFunctionCalls
-
+def plotColor(functionCalls, pixelsPerUnit):
     # initialize blank canvas
     canvasWidth = 2 * pixelsPerUnit + 1
     print("canvasWidth = " + str(canvasWidth))
@@ -70,13 +68,13 @@ def plotColor(expression, pixelsPerUnit):
             x = float(it2 - pixelsPerUnit) / pixelsPerUnit
             y = -float(it1 - pixelsPerUnit) / pixelsPerUnit
             # print("From plotColor(): ("+str(x)+","+str(y)+")")
-            currentFunctionCalls = []
-            z = evaluateExpression(expression,(x,y))
-            if (it1 == 0 and it2 == 0):
-                print(str(currentFunctionCalls))
-                newZ = evaluateExpressionFromFunctionCalls(currentFunctionCalls,(x,y))
-                print("Final value from evalFromFunctionCalls(): " + str(newZ))
-                print("Final actual value: " + str(z))
+            z = evaluateFunctionCalls(functionCalls,(x,y))
+            # if (it1 == 0 and it2 == 0):
+            #     print(str(currentFunctionCalls))
+            #     newZ = evaluateExpressionFromFunctionCalls(currentFunctionCalls,(x,y))
+            #     print("Final value from evalFromFunctionCalls(): " + str(newZ))
+            #     print("Final actual value: " + str(z))
+            # print("Final value: " + str(z))
 
             # scale [-1,1] result to [0,255].
             intensity = int(z * 127.5 + 127.5)
@@ -105,7 +103,7 @@ def buildExpression(prob = 0.9):
     else:
         return random.choice(["x","y"])
 
-def evaluateExpression(parentExpression, params):
+def evaluateExpression(parentExpression):
     global currentFunctionCalls
 
     # get list of expressions and operators
@@ -122,13 +120,13 @@ def evaluateExpression(parentExpression, params):
             currentFunctionCalls.append("(")
             currentFunctionCalls.append("x")
             currentFunctionCalls.append(")")
-            return params[0]
+            return 0
         elif (parentExpression[0] == 'y'):
             # print("Returning " + str(params[1]))
             currentFunctionCalls.append("(")
             currentFunctionCalls.append("y")
             currentFunctionCalls.append(")")
-            return params[1]
+            return 1
 
     # for each expression, determine the nested expression and evaluate it
     currentFunctionCalls.append("(")
@@ -138,15 +136,15 @@ def evaluateExpression(parentExpression, params):
         # print("Nested Expression: " + str(nestedExpression))
         if (expression[0] == 's'):
             #currentFunctionCalls.append("s(")
-            values.append(sinPiX(evaluateExpression(nestedExpression, params)))
+            values.append(sinPiX(evaluateExpression(nestedExpression)))
             currentFunctionCalls.append("s")
         elif (expression[0] == 'c'):
             # currentFunctionCalls.append("c(")
-            values.append(cosPiX(evaluateExpression(nestedExpression, params)))
+            values.append(cosPiX(evaluateExpression(nestedExpression)))
             currentFunctionCalls.append("c")
         elif (expression[0] == 't'):
             # currentFunctionCalls.append("t(")
-            values.append(tanPiX(evaluateExpression(nestedExpression, params)))
+            values.append(tanPiX(evaluateExpression(nestedExpression)))
             currentFunctionCalls.append("t")
     
     # apply the set of operators to the values
@@ -161,7 +159,7 @@ def evaluateExpression(parentExpression, params):
 
     # print("Final Value: " + str(finalValue))
     currentFunctionCalls.append(")")
-    return finalValue
+    return 2
 
 def tokenizeExpression(parentExpression):
     # will return a wrapper for a list of expressions and a list of operators
@@ -215,43 +213,46 @@ def convertToFunctionCalls(expression, color):
     if (color == 'r'):
         redFunctionCalls = []
         # do processing
+        evaluateExpression(expression)
         redFunctionCalls = currentFunctionCalls
     elif (color == 'g'):
         greenFunctionCalls = []
         # do processing
+        evaluateExpression(expression)
         greenFunctionCalls = currentFunctionCalls
     elif (color == 'b'):
         blueFunctionCalls = []
         # do processing
+        evaluateExpression(expression)
         blueFunctionCalls = currentFunctionCalls
 
-def evaluateExpressionFromFunctionCalls(functionCalls, params):
-    print("evalFromFunctionCalls() entry")
+def evaluateFunctionCalls(functionCalls, params):
+    # print("evalFromFunctionCalls() entry")
     expressionStack = [[]]
     currentExpression = []
     for symbol in functionCalls:
-        print("symbol: " + str(symbol))
+        # print("symbol: " + str(symbol))
         if (symbol == '('):
             expressionStack.append(currentExpression)
-            print("pushed " + str(currentExpression) + " to stack: " + str(expressionStack))
+            # print("pushed " + str(currentExpression) + " to stack: " + str(expressionStack))
             currentExpression = []
         elif (symbol == ')'):
             currentExpression = expressionStack.pop()
-            print("popped " + str(currentExpression) + " from stack: " + str(expressionStack))
+            # print("popped " + str(currentExpression) + " from stack: " + str(expressionStack))
             # solve current expression
             value = solveExpression(currentExpression, params)
             expressionStack[-1].append(value)
             currentExpression = []
         else:
             expressionStack[-1].append(symbol)
-            print("pushing to top of stack: "+ str(expressionStack))
-    print("final expressionStack" + str(expressionStack))
-    print("evalFromFunctionCalls() exit")
+            # print("pushing to top of stack: "+ str(expressionStack))
+    # print("final expressionStack" + str(expressionStack))
+    # print("evalFromFunctionCalls() exit")
     return expressionStack[0][0]
 
 def solveExpression(expression, params):
-    print("solveExpression entry")
-    print("params = " + str(params))
+    # print("solveExpression entry")
+    # print("params = " + str(params))
     values = []
     for symbol in expression:
         if (symbol == 'x'):
@@ -269,21 +270,34 @@ def solveExpression(expression, params):
             values[0] = values[0] * firstValue
         else:
             values.append(symbol)
-    print("Values list: " + str(values))
-    print("solveExpression exit")
+    # print("Values list: " + str(values))
+    # print("solveExpression exit")
     return values[0]
 
 def main():
+    global redFunctionCalls
+    global greenFunctionCalls
+    global blueFunctionCalls
+
     random.seed()
     for it in range (0, 1):
         redExpression = buildExpression()
         greenExpression = buildExpression()
         blueExpression = buildExpression()
+        print("Expressions: ")
         print("R:"+redExpression)
         print("G:"+greenExpression)
         print("B:"+blueExpression)
 
-        image = plotImage(redExpression, greenExpression, blueExpression, 750)
+        convertToFunctionCalls(redExpression, 'r')
+        convertToFunctionCalls(greenExpression, 'g')
+        convertToFunctionCalls(blueExpression, 'b')
+        print("Function Calls: ")
+        print("R:"+str(redFunctionCalls))
+        print("G:"+str(greenFunctionCalls))
+        print("B:"+str(blueFunctionCalls))
+
+        image = plotImage(redFunctionCalls, greenFunctionCalls, blueFunctionCalls, 2000)
         image.save("test" + str(it) + ".png", "PNG")
 
 if __name__ == "__main__":
