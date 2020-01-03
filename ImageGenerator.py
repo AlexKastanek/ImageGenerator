@@ -37,6 +37,11 @@ def tanPiX(x):
 def tanPiXY(x, y):
     return math.tan(math.pi * x * y)
 
+def lnX(x):
+    if (x <= 0):
+        x = 0.0000001
+    return math.log(x)
+
 def plotImage(redFunctionCalls, greenFunctionCalls, blueFunctionCalls, pixelsPerUnit = 150):
     # create a canvas for each color
     redCanvas = plotColor(redFunctionCalls, pixelsPerUnit)
@@ -94,12 +99,17 @@ def buildExpression(prob = 0.9):
             "s(" + buildExpression(prob*prob) + ")",
             "c(" + buildExpression(prob*prob) + ")",
             "t(" + buildExpression(prob*prob) + ")",
-            random.choice(["s(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")",
-            "s(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
-            random.choice(["c(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
-            "c(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
-            random.choice(["t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
-            "t(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])])
+            "l(" + buildExpression(prob*prob) + ")",
+            random.choice(["s(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+                "s(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")",
+                "s(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
+            random.choice(["c(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")",
+                "c(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+                "c(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")"]),
+            random.choice(["t(" + buildExpression(prob*prob) + ")*t(" + buildExpression(prob*prob) + ")",
+                "t(" + buildExpression(prob*prob) + ")*s(" + buildExpression(prob*prob) + ")",
+                "t(" + buildExpression(prob*prob) + ")*c(" + buildExpression(prob*prob) + ")"])
+        ])
     else:
         return random.choice(["x","y"])
 
@@ -146,6 +156,10 @@ def evaluateExpression(parentExpression):
             # currentFunctionCalls.append("t(")
             values.append(tanPiX(evaluateExpression(nestedExpression)))
             currentFunctionCalls.append("t")
+        elif (expression[0] == 'l'):
+            # currentFunctionCalls.append("l(")
+            values.append(lnX(evaluateExpression(nestedExpression)))
+            currentFunctionCalls.append("l")
     
     # apply the set of operators to the values
     #TODO: make below functionality actually apply order of operations
@@ -265,6 +279,8 @@ def solveExpression(expression, params):
             values[len(values) - 1] = cosPiX(values[-1])
         elif (symbol == 't'):
             values[len(values) - 1] = tanPiX(values[-1])
+        elif (symbol == 'l'):
+            values[len(values) - 1] = lnX(values[-1])
         elif (symbol == '*'):
             firstValue = values.pop(0)
             values[0] = values[0] * firstValue
@@ -280,10 +296,10 @@ def main():
     global blueFunctionCalls
 
     random.seed()
-    for it in range (0, 1):
-        redExpression = buildExpression()
-        greenExpression = buildExpression()
-        blueExpression = buildExpression()
+    for it in range (0, 100):
+        redExpression = buildExpression(0.925)
+        greenExpression = buildExpression(0.925)
+        blueExpression = buildExpression(0.925)
         print("Expressions: ")
         print("R:"+redExpression)
         print("G:"+greenExpression)
@@ -297,7 +313,7 @@ def main():
         print("G:"+str(greenFunctionCalls))
         print("B:"+str(blueFunctionCalls))
 
-        image = plotImage(redFunctionCalls, greenFunctionCalls, blueFunctionCalls, 2000)
+        image = plotImage(redFunctionCalls, greenFunctionCalls, blueFunctionCalls, 150)
         image.save("test" + str(it) + ".png", "PNG")
 
 if __name__ == "__main__":
